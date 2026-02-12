@@ -1,4 +1,4 @@
-# MessageViewKitDemo
+# SwiftChatUI
 
 An iOS demo app showcasing two reusable SwiftUI UI components for chat applications.
 
