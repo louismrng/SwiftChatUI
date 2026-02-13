@@ -20,9 +20,11 @@ struct ChatListTab: View {
         NavigationStack(path: $navigationPath) {
             chatListContent
                 .navigationDestination(for: String.self) { threadId in
+                    let thread = dataProvider.threads.first(where: { $0.uniqueId == threadId })
                     ConversationView(
                         threadId: threadId,
-                        threadName: dataProvider.threads.first(where: { $0.uniqueId == threadId })?.displayName ?? String(localized: "common.chat"),
+                        threadName: thread?.displayName ?? String(localized: "common.chat"),
+                        isGroup: thread?.isGroup ?? false,
                         dataProvider: dataProvider
                     )
                     .onAppear {

@@ -19,6 +19,7 @@ public struct MessageBubble: View {
     // MARK: - Properties
 
     let message: AnyMessage
+    let isGroupConversation: Bool
     let currentUserId: String
     let coordinateSpaceName: String?
     let onReact: ((String, String) -> Void)?
@@ -35,6 +36,7 @@ public struct MessageBubble: View {
 
     public init(
         message: AnyMessage,
+        isGroupConversation: Bool = false,
         currentUserId: String = "me",
         coordinateSpaceName: String? = nil,
         onReact: ((String, String) -> Void)? = nil,
@@ -42,6 +44,7 @@ public struct MessageBubble: View {
         onLongPress: ((CGRect) -> Void)? = nil
     ) {
         self.message = message
+        self.isGroupConversation = isGroupConversation
         self.currentUserId = currentUserId
         self.coordinateSpaceName = coordinateSpaceName
         self.onReact = onReact
@@ -60,16 +63,62 @@ public struct MessageBubble: View {
 
     // MARK: - Body
 
+    // MARK: - Sender Avatar Colors
+
+    private static let senderColors: [Color] = [
+        .blue, .green, .orange, .purple, .pink, .red, .cyan, .indigo, .mint, .teal
+    ]
+
+    private var senderColor: Color {
+        let hash = abs(message.authorId.hashValue)
+        return Self.senderColors[hash % Self.senderColors.count]
+    }
+
+    private var senderInitial: String {
+        if let name = message.authorDisplayName, let first = name.first {
+            return String(first).uppercased()
+        }
+        return "?"
+    }
+
+    private var showGroupSenderInfo: Bool {
+        isGroupConversation && !message.isOutgoing && !message.isSystemMessage
+    }
+
+    // MARK: - Body
+
     public var body: some View {
-        HStack(alignment: .bottom, spacing: 0) {
+        HStack(alignment: .bottom, spacing: 6) {
             if message.isOutgoing {
                 Spacer(minLength: 60)
             }
 
-            bubbleWithReactions
+            // Mini sender avatar for group incoming messages
+            if showGroupSenderInfo {
+                ZStack {
+                    Circle()
+                        .fill(senderColor)
+                    Text(senderInitial)
+                        .font(.system(size: 11, weight: .semibold))
+                        .foregroundColor(.white)
+                }
+                .frame(width: 28, height: 28)
+            }
+
+            VStack(alignment: message.isOutgoing ? .trailing : .leading, spacing: 1) {
+                // Sender name label for group incoming messages
+                if showGroupSenderInfo {
+                    Text(message.authorDisplayName ?? "Unknown")
+                        .font(.caption2.weight(.semibold))
+                        .foregroundColor(senderColor)
+                        .padding(.leading, 4)
+                }
+
+                bubbleWithReactions
+            }
 
             if !message.isOutgoing {
-                Spacer(minLength: 60)
+                Spacer(minLength: showGroupSenderInfo ? 40 : 60)
             }
         }
         .padding(.horizontal, 12)

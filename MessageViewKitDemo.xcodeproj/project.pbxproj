@@ -52,6 +52,9 @@
 		E1000002001 /* ConversationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1000002000 /* ConversationView.swift */; };
 		E1000003001 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1000003000 /* SettingsView.swift */; };
 		E1000004001 /* ComposeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1000004000 /* ComposeView.swift */; };
+		F2000001001 /* GroupAvatarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2000001000 /* GroupAvatarView.swift */; };
+		F2000002001 /* SystemMessageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2000002000 /* SystemMessageView.swift */; };
+		F2000003001 /* GroupInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2000003000 /* GroupInfoView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -102,6 +105,9 @@
 		E1000002000 /* ConversationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationView.swift; sourceTree = "<group>"; };
 		E1000003000 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		E1000004000 /* ComposeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComposeView.swift; sourceTree = "<group>"; };
+		F2000001000 /* GroupAvatarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupAvatarView.swift; sourceTree = "<group>"; };
+		F2000002000 /* SystemMessageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemMessageView.swift; sourceTree = "<group>"; };
+		F2000003000 /* GroupInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupInfoView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -202,6 +208,8 @@
 				B1000021000 /* ReactionPicker.swift */,
 				B1000022000 /* ReactionBadge.swift */,
 				B1000023000 /* ReactionDetailsSheet.swift */,
+				F2000002000 /* SystemMessageView.swift */,
+				F2000003000 /* GroupInfoView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -260,6 +268,7 @@
 				C1000008000 /* EmptyInboxView.swift */,
 				C1000009000 /* FilterControl.swift */,
 				C1000010000 /* SectionHeader.swift */,
+				F2000001000 /* GroupAvatarView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -395,6 +404,9 @@
 				D1000006001 /* StoragePlaceholderView.swift in Sources */,
 				BFFC682F2F28B47C0087261B /* ContextMenuAction.swift in Sources */,
 				D1000007001 /* SettingsTabView.swift in Sources */,
+				F2000001001 /* GroupAvatarView.swift in Sources */,
+				F2000002001 /* SystemMessageView.swift in Sources */,
+				F2000003001 /* GroupInfoView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

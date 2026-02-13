@@ -66,6 +66,9 @@ public final class ConversationViewModel: ObservableObject {
     /// The current user's ID for identifying own reactions
     public var currentUserId: String = "me"
 
+    /// Whether this is a group conversation (shows sender names, avatars)
+    public var isGroupConversation: Bool = false
+
     // MARK: - Initialization
 
     public init(messages: [AnyMessage] = []) {
