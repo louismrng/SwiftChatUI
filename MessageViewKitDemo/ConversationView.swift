@@ -11,19 +11,23 @@ import SwiftUI
 struct ConversationView: View {
     let threadId: String
     let threadName: String
+    let isGroup: Bool
     let dataProvider: MockDataProvider
 
     @StateObject private var viewModel: ConversationViewModel
     @State private var showingInfo = false
     @State private var isContextMenuVisible = false
 
-    init(threadId: String, threadName: String, dataProvider: MockDataProvider) {
+    init(threadId: String, threadName: String, isGroup: Bool = false, dataProvider: MockDataProvider) {
         self.threadId = threadId
         self.threadName = threadName
+        self.isGroup = isGroup
         self.dataProvider = dataProvider
 
         let messages = dataProvider.messagesForThread(threadId: threadId)
-        _viewModel = StateObject(wrappedValue: ConversationViewModel(messages: messages))
+        let vm = ConversationViewModel(messages: messages)
+        vm.isGroupConversation = isGroup
+        _viewModel = StateObject(wrappedValue: vm)
     }
 
     var body: some View {
@@ -32,23 +36,101 @@ struct ConversationView: View {
             .navigationTitle(threadName)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        showingInfo = true
-                    } label: {
-                        Image(systemName: "info.circle")
+                if isGroup {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        groupToolbarButton
+                    }
+                } else {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button {
+                            showingInfo = true
+                        } label: {
+                            Image(systemName: "info.circle")
+                        }
                     }
                 }
             }
-            .alert("conversation.thread_info", isPresented: $showingInfo) {
-                Button("common.ok", role: .cancel) { }
-            } message: {
-                Text(String(localized: "conversation.thread_info_detail", defaultValue: "Thread ID: \(threadId)\nName: \(threadName)\nMessages: \(viewModel.messages.count)"))
+            .sheet(isPresented: $showingInfo) {
+                if isGroup {
+                    groupInfoSheet
+                } else {
+                    directInfoAlert
+                }
             }
             .modifier(PreiOS26TabBarHiddenModifier())
             .onAppear {
                 setupSendHandler()
             }
+    }
+
+    // MARK: - Group Toolbar Button
+
+    private var groupToolbarButton: some View {
+        Button {
+            showingInfo = true
+        } label: {
+            let participants = dataProvider.participantNamesForThread(threadId: threadId)
+            GroupAvatarView(participantNames: participants, size: 32)
+        }
+    }
+
+    // MARK: - Group Info Sheet
+
+    private var groupInfoSheet: some View {
+        let members = dataProvider.membersForThread(threadId: threadId)
+        let groupMembers = members.map { member in
+            GroupMember(
+                id: member.id,
+                displayName: member.name,
+                isAdmin: member.isAdmin,
+                isCurrentUser: member.id == "me"
+            )
+        }
+
+        return GroupInfoView(
+            groupName: threadName,
+            participantNames: dataProvider.participantNamesForThread(threadId: threadId),
+            members: groupMembers,
+            messageCount: viewModel.messages.count,
+            onDismiss: { showingInfo = false }
+        )
+    }
+
+    // MARK: - Direct Chat Info Alert
+
+    private var directInfoAlert: some View {
+        // Simple info view for direct chats
+        NavigationStack {
+            VStack(spacing: 20) {
+                // Avatar
+                let name = threadName
+                ZStack {
+                    Circle()
+                        .fill(avatarColor(for: name))
+                        .frame(width: 80, height: 80)
+                    Text(initials(for: name))
+                        .font(.system(size: 32, weight: .medium))
+                        .foregroundColor(.white)
+                }
+                .padding(.top, 40)
+
+                Text(name)
+                    .font(.title2.weight(.bold))
+
+                Text("\(viewModel.messages.count) messages")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+
+                Spacer()
+            }
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Done") { showingInfo = false }
+                        .fontWeight(.semibold)
+                }
+            }
+        }
     }
 
     // MARK: - Setup
@@ -65,7 +147,9 @@ struct ConversationView: View {
                 timestamp: Date(),
                 bodyText: text,
                 isOutgoing: true,
-                deliveryStatus: .sending
+                deliveryStatus: .sending,
+                authorId: "me",
+                authorDisplayName: "Me"
             )
 
             // Add to view model
@@ -82,7 +166,9 @@ struct ConversationView: View {
                     timestamp: message.timestamp,
                     bodyText: text,
                     isOutgoing: true,
-                    deliveryStatus: .delivered
+                    deliveryStatus: .delivered,
+                    authorId: "me",
+                    authorDisplayName: "Me"
                 )
                 viewModel.updateMessage(deliveredMessage)
                 dataProvider.updateMessage(deliveredMessage, inThread: threadId)
@@ -96,7 +182,9 @@ struct ConversationView: View {
                     timestamp: message.timestamp,
                     bodyText: text,
                     isOutgoing: true,
-                    deliveryStatus: .read
+                    deliveryStatus: .read,
+                    authorId: "me",
+                    authorDisplayName: "Me"
                 )
                 viewModel.updateMessage(readMessage)
                 dataProvider.updateMessage(readMessage, inThread: threadId)
@@ -137,6 +225,24 @@ struct ConversationView: View {
             viewModel.setMessages(updatedMessages)
         }
     }
+
+    // MARK: - Helpers
+
+    private func initials(for name: String) -> String {
+        let words = name.split(separator: " ")
+        if words.count >= 2 {
+            return String(words[0].prefix(1) + words[1].prefix(1)).uppercased()
+        } else if let first = name.first {
+            return String(first).uppercased()
+        }
+        return "?"
+    }
+
+    private func avatarColor(for name: String) -> Color {
+        let colors: [Color] = [.blue, .green, .orange, .purple, .pink, .red, .cyan, .indigo]
+        let hash = abs(name.hashValue)
+        return colors[hash % colors.count]
+    }
 }
 
 private struct PreiOS26TabBarHiddenModifier: ViewModifier {
@@ -154,6 +260,17 @@ private struct PreiOS26TabBarHiddenModifier: ViewModifier {
         ConversationView(
             threadId: "preview",
             threadName: "Alice",
+            dataProvider: MockDataProvider()
+        )
+    }
+}
+
+#Preview("Group Chat") {
+    NavigationStack {
+        ConversationView(
+            threadId: "preview-group",
+            threadName: "Weekend Hikers",
+            isGroup: true,
             dataProvider: MockDataProvider()
         )
     }

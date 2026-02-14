@@ -73,15 +73,21 @@ public struct MessageListView: View {
 
             // Messages in this group
             ForEach(group.messages) { message in
-                MessageBubble(
-                    message: message,
-                    currentUserId: viewModel.currentUserId,
-                    coordinateSpaceName: coordinateSpaceName,
-                    onReact: { emoji, messageId in viewModel.onReact?(emoji, messageId) },
-                    onRemoveReaction: { reaction, messageId in viewModel.onRemoveReaction?(reaction, messageId) },
-                    onLongPress: { frame in onLongPress?(message, frame) }
-                )
-                .id("\(message.id)-\(message.reactions.count)-\(message.reactions.map(\.emoji).joined())")
+                if message.isSystemMessage {
+                    SystemMessageView(message: message)
+                        .id(message.id)
+                } else {
+                    MessageBubble(
+                        message: message,
+                        isGroupConversation: viewModel.isGroupConversation,
+                        currentUserId: viewModel.currentUserId,
+                        coordinateSpaceName: coordinateSpaceName,
+                        onReact: { emoji, messageId in viewModel.onReact?(emoji, messageId) },
+                        onRemoveReaction: { reaction, messageId in viewModel.onRemoveReaction?(reaction, messageId) },
+                        onLongPress: { frame in onLongPress?(message, frame) }
+                    )
+                    .id("\(message.id)-\(message.reactions.count)-\(message.reactions.map(\.emoji).joined())")
+                }
             }
         }
 

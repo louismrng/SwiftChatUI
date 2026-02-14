@@ -41,6 +41,9 @@ public protocol Message {
 
     /// Reactions on this message
     var reactions: [Reaction] { get }
+
+    /// Whether this is a system message (e.g. "Alice added Bob to the group")
+    var isSystemMessage: Bool { get }
 }
 
 // MARK: - Delivery Status
@@ -100,6 +103,7 @@ public struct MockMessage: Message {
     public let authorId: String
     public let authorDisplayName: String?
     public let reactions: [Reaction]
+    public let isSystemMessage: Bool
 
     public init(
         uniqueId: String = UUID().uuidString,
@@ -111,7 +115,8 @@ public struct MockMessage: Message {
         deliveryStatus: DeliveryStatus = .sent,
         authorId: String = "user123",
         authorDisplayName: String? = nil,
-        reactions: [Reaction] = []
+        reactions: [Reaction] = [],
+        isSystemMessage: Bool = false
     ) {
         self.uniqueId = uniqueId
         self.sortId = sortId
@@ -123,6 +128,7 @@ public struct MockMessage: Message {
         self.authorId = authorId
         self.authorDisplayName = authorDisplayName
         self.reactions = reactions
+        self.isSystemMessage = isSystemMessage
     }
 }
 
@@ -161,6 +167,7 @@ public struct AnyMessage: Identifiable, Equatable {
     public let authorId: String
     public let authorDisplayName: String?
     public let reactions: [Reaction]
+    public let isSystemMessage: Bool
 
     public init<M: Message>(_ message: M) {
         self.id = message.uniqueId
@@ -173,6 +180,7 @@ public struct AnyMessage: Identifiable, Equatable {
         self.authorId = message.authorId
         self.authorDisplayName = message.authorDisplayName
         self.reactions = message.reactions
+        self.isSystemMessage = message.isSystemMessage
     }
 
     public static func == (lhs: AnyMessage, rhs: AnyMessage) -> Bool {
@@ -184,7 +192,8 @@ public struct AnyMessage: Identifiable, Equatable {
         lhs.deliveryStatus == rhs.deliveryStatus &&
         lhs.authorId == rhs.authorId &&
         lhs.authorDisplayName == rhs.authorDisplayName &&
-        lhs.reactions == rhs.reactions
+        lhs.reactions == rhs.reactions &&
+        lhs.isSystemMessage == rhs.isSystemMessage
     }
 }
 

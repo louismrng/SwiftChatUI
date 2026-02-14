@@ -42,16 +42,23 @@ public struct ThreadRowContent: View {
 
     @ViewBuilder
     private var avatarView: some View {
-        // Placeholder avatar - in real integration this would bridge to ConversationAvatarView
-        ZStack {
-            Circle()
-                .fill(avatarBackgroundColor)
+        if thread.isGroup {
+            GroupAvatarView(
+                participantNames: thread.participantNames,
+                size: style.avatarSize
+            )
+        } else {
+            // Placeholder avatar - in real integration this would bridge to ConversationAvatarView
+            ZStack {
+                Circle()
+                    .fill(avatarBackgroundColor)
 
-            Text(avatarInitials)
-                .font(.system(size: style.avatarSize * 0.4, weight: .medium))
-                .foregroundColor(.white)
+                Text(avatarInitials)
+                    .font(.system(size: style.avatarSize * 0.4, weight: .medium))
+                    .foregroundColor(.white)
+            }
+            .frame(width: style.avatarSize, height: style.avatarSize)
         }
-        .frame(width: style.avatarSize, height: style.avatarSize)
     }
 
     private var avatarInitials: String {

@@ -53,6 +53,12 @@ public protocol Thread {
 
     /// Whether this is a note-to-self thread (shows verified badge)
     var isNoteToSelf: Bool { get }
+
+    /// Number of members in a group thread (0 for 1:1)
+    var memberCount: Int { get }
+
+    /// Display names of group participants (empty for 1:1)
+    var participantNames: [String] { get }
 }
 
 // MARK: - Message Snippet
@@ -159,6 +165,8 @@ public struct AnyThread: Identifiable, Equatable {
     public let isBlocked: Bool
     public let hasPendingMessageRequest: Bool
     public let isNoteToSelf: Bool
+    public let memberCount: Int
+    public let participantNames: [String]
 
     public init<T: Thread>(_ thread: T) {
         self.id = thread.uniqueId
@@ -175,6 +183,8 @@ public struct AnyThread: Identifiable, Equatable {
         self.isBlocked = thread.isBlocked
         self.hasPendingMessageRequest = thread.hasPendingMessageRequest
         self.isNoteToSelf = thread.isNoteToSelf
+        self.memberCount = thread.memberCount
+        self.participantNames = thread.participantNames
     }
 
     public static func == (lhs: AnyThread, rhs: AnyThread) -> Bool {
@@ -191,7 +201,9 @@ public struct AnyThread: Identifiable, Equatable {
         lhs.isTyping == rhs.isTyping &&
         lhs.isBlocked == rhs.isBlocked &&
         lhs.hasPendingMessageRequest == rhs.hasPendingMessageRequest &&
-        lhs.isNoteToSelf == rhs.isNoteToSelf
+        lhs.isNoteToSelf == rhs.isNoteToSelf &&
+        lhs.memberCount == rhs.memberCount &&
+        lhs.participantNames == rhs.participantNames
     }
 }
 
@@ -219,6 +231,8 @@ public struct MockThread: Thread {
     public let isBlocked: Bool
     public let hasPendingMessageRequest: Bool
     public let isNoteToSelf: Bool
+    public let memberCount: Int
+    public let participantNames: [String]
 
     public init(
         uniqueId: String = UUID().uuidString,
@@ -234,7 +248,9 @@ public struct MockThread: Thread {
         isTyping: Bool = false,
         isBlocked: Bool = false,
         hasPendingMessageRequest: Bool = false,
-        isNoteToSelf: Bool = false
+        isNoteToSelf: Bool = false,
+        memberCount: Int = 0,
+        participantNames: [String] = []
     ) {
         self.uniqueId = uniqueId
         self.displayName = displayName
@@ -250,5 +266,7 @@ public struct MockThread: Thread {
         self.isBlocked = isBlocked
         self.hasPendingMessageRequest = hasPendingMessageRequest
         self.isNoteToSelf = isNoteToSelf
+        self.memberCount = memberCount
+        self.participantNames = participantNames
     }
 }

@@ -33,17 +33,42 @@ struct ComposeView: View {
     }
 
     var body: some View {
-        List(filteredContacts, id: \.self) { contact in
-            Button {
-                selectedContact = contact
-                showingConfirmation = true
-            } label: {
-                HStack {
-                    Image(systemName: "person.circle.fill")
-                        .font(.title2)
-                        .foregroundStyle(.blue)
-                    Text(contact)
-                        .foregroundStyle(.primary)
+        List {
+            // New Group option
+            Section {
+                Button {
+                    // Placeholder for group creation
+                } label: {
+                    HStack(spacing: 12) {
+                        ZStack {
+                            Circle()
+                                .fill(Color.green)
+                                .frame(width: 36, height: 36)
+                            Image(systemName: "person.3.fill")
+                                .font(.system(size: 14))
+                                .foregroundColor(.white)
+                        }
+                        Text("New Group")
+                            .foregroundStyle(.primary)
+                    }
+                }
+            }
+
+            // Contacts
+            Section {
+                ForEach(filteredContacts, id: \.self) { contact in
+                    Button {
+                        selectedContact = contact
+                        showingConfirmation = true
+                    } label: {
+                        HStack {
+                            Image(systemName: "person.circle.fill")
+                                .font(.title2)
+                                .foregroundStyle(.blue)
+                            Text(contact)
+                                .foregroundStyle(.primary)
+                        }
+                    }
                 }
             }
         }
